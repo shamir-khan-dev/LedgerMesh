@@ -1,0 +1,50 @@
+services:
+  ledgermesh-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ledgermesh_api
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: ledgermesh_postgres
+    environment:
+      POSTGRES_USER: ledgermesh
+      POSTGRES_PASSWORD: institutional_secret
+      POSTGRES_DB: ledgermesh_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c synchronous_commit=on
+      -c wal_level=replica
+      -c max_connections=200
+      -c shared_buffers=256MB
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledgermesh -d ledgermesh_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ledgermesh_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+volumes:
+  pgdata:
