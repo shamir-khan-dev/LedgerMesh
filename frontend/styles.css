@@ -384,6 +384,50 @@ header {
   transition: border-color 0.2s;
 }
 
+select.input-field option {
+  background-color: #121822;
+  color: #F0F4F8;
+  padding: 10px;
+}
+
+/* In-Page Toast Notification */
+.toast-box {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 20px;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.toast-box.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toast-box.success {
+  border-color: var(--accent-emerald);
+  box-shadow: 0 0 20px var(--accent-emerald-glow);
+}
+
+.toast-box.error {
+  border-color: var(--accent-crimson);
+  box-shadow: 0 0 20px var(--accent-crimson-glow);
+}
+
 .input-field:focus {
   border-color: var(--border-focus);
 }
@@ -719,3 +763,4 @@ footer {
   font-size: 0.85rem;
   margin-top: 80px;
 }
+

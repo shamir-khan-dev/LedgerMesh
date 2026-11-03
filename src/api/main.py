@@ -1,5 +1,6 @@
 import os
 import time
+from contextlib import asynccontextmanager
 from typing import List, Optional
 from fastapi import FastAPI, Header, HTTPException, Query, Request, Response, status
 from fastapi.responses import PlainTextResponse
@@ -85,17 +86,28 @@ def create_app(
     idempotency_store: Optional[InMemoryIdempotencyStore] = None,
     metrics: Optional[MetricsRegistry] = None,
 ) -> FastAPI:
-    app = FastAPI(
-        title="LedgerMesh Engine",
-        version="1.0.0",
-        description="High-Concurrency Double-Entry Financial Clearing & Audit Engine",
-    )
-
     repository = repo or LedgerRepository()
     idem_store = idempotency_store or InMemoryIdempotencyStore()
     metrics_reg = metrics or GLOBAL_METRICS
     executor = LedgerExecutor(repository)
     reconciler = ReconciliationEngine(repository)
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        accs = await repository.list_accounts()
+        if not accs:
+            await repository.create_account("Operating Checking (SVB)", "1000", AccountType.ASSET, initial_balance=5000000)
+            await repository.create_account("Accounts Receivable", "1200", AccountType.ASSET, initial_balance=1250000)
+            await repository.create_account("Subscription SaaS Revenue", "4000", AccountType.REVENUE, initial_balance=0)
+            await repository.create_account("Accounts Payable", "2000", AccountType.LIABILITY, initial_balance=2000000)
+        yield
+
+    app = FastAPI(
+        title="LedgerMesh Engine",
+        version="1.0.0",
+        description="High-Concurrency Double-Entry Financial Clearing & Audit Engine",
+        lifespan=lifespan,
+    )
 
     # Middleware: Distributed Trace ID & Request Latency Instrumentation
     @app.middleware("http")

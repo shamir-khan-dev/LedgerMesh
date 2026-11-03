@@ -1,8 +1,26 @@
 // LedgerMesh Interactive Engine Experience
 // Supports live FastAPI backend connection with automatic client-side fallback simulation
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = (typeof window !== "undefined" && window.location.origin.startsWith("http")) 
+  ? window.location.origin 
+  : "http://127.0.0.1:8000";
 let isBackendLive = false;
+
+// Toast Notification System
+function showToast(message, type = "success") {
+  let toast = document.getElementById("toast-box");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "toast-box";
+    toast.className = "toast-box";
+    document.body.appendChild(toast);
+  }
+  toast.className = `toast-box ${type} show`;
+  toast.innerHTML = `<span>${type === 'success' ? '✓' : '⚠'}</span> <div>${message}</div>`;
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3500);
+}
 
 // Local In-Memory State for standalone mode or offline viewing
 const localState = {
@@ -150,7 +168,7 @@ async function handlePostTransaction() {
   const desc = document.getElementById("tx-description").value.trim() || "Clearing Settlement";
 
   if (debitAccId === creditAccId) {
-    alert("Double-entry rules prohibit debiting and crediting the same account in a 2-legged entry.");
+    showToast("Double-entry rules prohibit debiting and crediting the same account in a 2-legged entry.", "error");
     return;
   }
 
@@ -280,7 +298,7 @@ function renderAuditChain() {
 // Tamper Attack Simulator
 function handleSimulateTamper() {
   if (localState.transactions.length === 0) {
-    alert("Post at least 1 transaction in the composer before running the tamper simulation!");
+    showToast("Post at least 1 transaction in the composer before running the tamper simulation!", "error");
     return;
   }
 
@@ -357,13 +375,13 @@ async function runOCCSimulation() {
         completed++;
         countBadge.innerText = `${completed} / ${numWorkers}`;
         balanceBadge.innerText = `$${(cashAcc.balance / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-        appendLog(`Worker #${workerId:02d}: CAS atomic commit on version ${currentVersion} -> SUCCESS`, "event");
+        appendLog(`Worker #${String(workerId).padStart(2, '0')}: CAS atomic commit on version ${currentVersion} -> SUCCESS`, "event");
         break;
       } else {
         // OCC Collision! Stale version detected
         conflicts++;
         const jitter = (Math.random() * 5 + 2).toFixed(1);
-        appendLog(`Worker #${workerId:02d}: OCC Version Collision (Expected v${currentVersion}, saw v${cashAcc.version}) -> Backoff ${jitter}ms`, "retry");
+        appendLog(`Worker #${String(workerId).padStart(2, '0')}: OCC Version Collision (Expected v${currentVersion}, saw v${cashAcc.version}) -> Backoff ${jitter}ms`, "retry");
         await new Promise(r => setTimeout(r, parseFloat(jitter)));
       }
     }
@@ -449,3 +467,4 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btn-reset-idempotency").addEventListener("click", handleResetIdempotency);
   document.getElementById("btn-run-reconciliation").addEventListener("click", handleRunReconciliation);
 });
+
