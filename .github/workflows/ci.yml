@@ -27,9 +27,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Pytest Suite (28 Tests)
+        env:
+          PYTHONPATH: .
         run: |
-          pytest -v
+          python -m pytest -v
 
       - name: Run Architecture Benchmark Verification
+        env:
+          PYTHONPATH: .
         run: |
           python benchmarks/run_benchmark.py
