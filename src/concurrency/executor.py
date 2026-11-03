@@ -93,3 +93,4 @@ class LedgerExecutor:
                 await asyncio.sleep(sleep_time)
 
         raise OptimisticLockConflictError(f"Transaction {tx.reference_id} failed to commit")
+

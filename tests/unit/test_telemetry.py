@@ -28,3 +28,4 @@ def test_metrics_registry_counters_and_latency_percentiles():
     assert "ledgermesh_transactions_total" in prom_text
     assert "ledgermesh_occ_conflicts_total" in prom_text
     assert "ledgermesh_latency_p99_seconds" in prom_text
+

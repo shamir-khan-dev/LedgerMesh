@@ -75,3 +75,4 @@ async def test_overdraft_protection_for_assets():
     account = await repo.get_account(cash.id)
     assert account.balance == 1000
     assert account.version == 1
+

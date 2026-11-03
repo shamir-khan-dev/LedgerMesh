@@ -55,3 +55,4 @@ class Transaction(BaseModel):
     status: TransactionStatus = TransactionStatus.PENDING
     hash: Optional[str] = None
     prev_hash: Optional[str] = None
+

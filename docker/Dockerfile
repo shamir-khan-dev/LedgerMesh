@@ -34,3 +34,4 @@ HEALTHCHECK --interval=15s --timeout=3s --retries=3 \
 
 # Production server entrypoint
 CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+

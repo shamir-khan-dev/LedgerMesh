@@ -120,3 +120,4 @@ def compute_merkle_root(hashes: List[str]) -> str:
         current_layer = next_layer
 
     return current_layer[0]
+

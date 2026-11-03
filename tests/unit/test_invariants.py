@@ -117,3 +117,4 @@ def test_normal_balance_calculations():
     # Revenue
     assert calculate_balance_delta(AccountType.REVENUE, EntryDirection.DEBIT, 3000) == -3000
     assert calculate_balance_delta(AccountType.REVENUE, EntryDirection.CREDIT, 3000) == 3000
+

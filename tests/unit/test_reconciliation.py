@@ -83,3 +83,4 @@ async def test_reconciliation_exact_and_discrepancy_detection():
     # Verify matched items have confidence 1.0
     matched_refs = [m.notes for m in report.matches if m.match_status == MatchStatus.EXACT_MATCH]
     assert len(matched_refs) == 2
+

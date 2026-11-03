@@ -85,3 +85,4 @@ def test_merkle_root_computation():
     merkle_root = compute_merkle_root([tx1.hash, tx2.hash])
     assert len(merkle_root) == 64
     assert isinstance(merkle_root, str)
+

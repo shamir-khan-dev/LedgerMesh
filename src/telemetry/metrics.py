@@ -94,3 +94,4 @@ class MetricsRegistry:
 
 # Global singleton
 GLOBAL_METRICS = MetricsRegistry()
+

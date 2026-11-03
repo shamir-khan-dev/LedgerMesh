@@ -71,3 +71,4 @@ def calculate_balance_delta(
         return amount if direction == EntryDirection.CREDIT else -amount
     else:
         raise ValueError(f"Unknown account type: {account_type}")
+

@@ -65,3 +65,4 @@ async def test_high_concurrency_race_condition_simulation():
     assert audit_result.is_valid is True
     assert audit_result.total_verified == concurrency_count
     assert audit_result.tampered_transaction_id is None
+

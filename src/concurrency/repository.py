@@ -137,3 +137,4 @@ class LedgerRepository:
         async with self._lock:
             ordered_ids = self._tx_order[offset : offset + limit]
             return [self._transactions[tx_id].model_copy() for tx_id in ordered_ids]
+

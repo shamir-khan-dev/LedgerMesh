@@ -46,3 +46,4 @@ def get_structured_logger(name: str = "ledgermesh") -> logging.Logger:
 def generate_trace_id() -> str:
     """Generates a unique distributed trace identifier for incoming requests."""
     return f"tr_{uuid.uuid4().hex[:16]}"
+

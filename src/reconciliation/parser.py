@@ -85,3 +85,4 @@ def parse_json_statement(json_data: Union[str, List[dict]]) -> List[BankStatemen
         transactions.append(tx)
 
     return transactions
+

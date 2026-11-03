@@ -59,3 +59,4 @@ async def test_payload_mismatch_rejected():
     with pytest.raises(IdempotencyPayloadMismatchError) as exc_info:
         await store.acquire_lock(key, altered_payload)
     assert "Payload does not match original request" in str(exc_info.value)
+

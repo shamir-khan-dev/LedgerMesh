@@ -116,3 +116,4 @@ class InMemoryIdempotencyStore:
                     del self._records[key]
                     return None
             return record
+
