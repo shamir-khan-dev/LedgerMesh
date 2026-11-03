@@ -150,3 +150,10 @@ def test_prometheus_metrics_endpoint(client):
     res = client.get("/metrics")
     assert res.status_code == 200
     assert "ledgermesh" in res.text
+
+def test_frontend_dashboard_served(client):
+    res = client.get("/")
+    assert res.status_code == 200
+    assert "LedgerMesh" in res.text
+    assert "Double-Entry" in res.text
+

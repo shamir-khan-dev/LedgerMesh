@@ -1,7 +1,9 @@
+import os
 import time
 from typing import List, Optional
 from fastapi import FastAPI, Header, HTTPException, Query, Request, Response, status
 from fastapi.responses import PlainTextResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from src.core.models import (
@@ -280,7 +282,13 @@ def create_app(
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e))
 
+    # Mount interactive frontend web experience
+    frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend"))
+    if os.path.exists(frontend_dir):
+        app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+
     return app
 
 # Default ASGI app instance for uvicorn
 app = create_app()
+

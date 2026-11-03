@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LedgerMesh 🏛️ | High-Concurrency Double-Entry Clearing & Audit Engine</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Atmosphere Grids -->
+  <div class="bg-grid"></div>
+  <div class="bg-radial"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav-wrapper">
+      <a href="#" class="brand">
+        <div class="brand-icon">🏛️</div>
+        <div class="brand-text">
+          <h1>LedgerMesh</h1>
+          <span>Financial Clearing Core</span>
+        </div>
+      </a>
+
+      <div class="nav-links">
+        <div class="status-badge" id="backend-status-badge">
+          <div class="status-pulse"></div>
+          <span id="backend-status-text">CONNECTING...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="pill-tag">
+        <span>⚡ Benchmarked at <strong>6,193 tx/sec</strong> with <strong>p99 &lt; 1.5ms</strong></span>
+      </div>
+
+      <h2>
+        The Financial Ledger Engine Built for<br>
+        <span>Zero-Discrepancy Clearing</span>
+      </h2>
+
+      <p>
+        Standard web databases fail in financial systems due to floating-point drift, lost updates during traffic spikes, duplicate charges, and unverified data tampering. LedgerMesh enforces mathematical invariants, distributed idempotency, optimistic concurrency control, and cryptographic audit proofs.
+      </p>
+
+      <!-- 4 Key Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="label">Throughput Capacity</div>
+          <div class="value emerald">6,193 <span style="font-size: 1rem; color: var(--text-muted);">tx/s</span></div>
+          <div class="subtext">20 concurrent worker coroutines</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="label">99th Percentile Latency</div>
+          <div class="value cyan">1.41 <span style="font-size: 1rem; color: var(--text-muted);">ms</span></div>
+          <div class="subtext">p50 median of 0.06 ms</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="label">Balance Variance</div>
+          <div class="value emerald">$0.00</div>
+          <div class="subtext">Strict integer minor-unit math</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="label">Audit Integrity</div>
+          <div class="value amber">100%</div>
+          <div class="subtext">SHA-256 hash-chained proof</div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="tab-composer">⚖️ Double-Entry Composer</button>
+        <button class="tab-btn" data-tab="tab-occ">⚡ Concurrency & OCC Stress</button>
+        <button class="tab-btn" data-tab="tab-audit">🔒 Tamper-Proof Audit Chain</button>
+        <button class="tab-btn" data-tab="tab-idempotency">🔄 Idempotency Retry Lab</button>
+        <button class="tab-btn" data-tab="tab-reconciliation">📑 Bank Statement Tie-Out</button>
+        <button class="tab-btn" data-tab="tab-arch">🏗️ Architectural Deep Dive</button>
+      </div>
+
+      <!-- TAB 1: Double-Entry Composer -->
+      <div id="tab-composer" class="tab-content active">
+        <div class="sandbox-card">
+          <div class="section-title">
+            <div>
+              <h3>⚖️ Interactive Double-Entry Transaction Composer</h3>
+              <p>Post transactions with strict double-entry validation. Notice how unbalanced entries are blocked at the invariant boundary.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="input-group">
+              <label>Debit Account (Receiving Leg / Inflow)</label>
+              <select id="tx-debit-account" class="input-field"></select>
+            </div>
+
+            <div class="input-group">
+              <label>Credit Account (Funding Leg / Outflow)</label>
+              <select id="tx-credit-account" class="input-field"></select>
+            </div>
+
+            <div class="input-group">
+              <label>Amount (USD)</label>
+              <input type="number" id="tx-amount" class="input-field" value="250.00" step="0.01" min="0.01">
+            </div>
+
+            <div class="input-group">
+              <label>Reference ID</label>
+              <input type="text" id="tx-reference" class="input-field" value="INV-4821">
+            </div>
+
+            <div class="input-group" style="grid-column: 1 / -1;">
+              <label>Transaction Description / Memo</label>
+              <input type="text" id="tx-description" class="input-field" value="Enterprise SaaS Subscription Payment">
+            </div>
+          </div>
+
+          <!-- Live Equation Visualizer -->
+          <div class="equation-bar">
+            <div class="eq-side">
+              <span class="eq-badge debit">TOTAL DEBITS</span>
+              <span id="eq-debit-amount" class="eq-value" style="color: var(--accent-cyan);">$250.00</span>
+            </div>
+
+            <span class="eq-operator">=</span>
+
+            <div class="eq-side">
+              <span class="eq-badge credit">TOTAL CREDITS</span>
+              <span id="eq-credit-amount" class="eq-value" style="color: var(--accent-emerald);">$250.00</span>
+            </div>
+
+            <div class="eq-side">
+              <span style="font-size: 0.8rem; color: var(--text-muted);">DISCREPANCY:</span>
+              <span id="eq-delta-amount" style="font-weight: 700; color: var(--accent-emerald);">$0.00</span>
+            </div>
+
+            <div id="invariant-status-box" class="invariant-status balanced">
+              <span>✓</span> Invariant Balanced (Σ Debits = Σ Credits)
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px;">
+            <button id="btn-post-transaction" class="btn btn-primary">
+              <span>🏛️ Post Transaction to Ledger</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Ledger Journal Table -->
+        <div class="sandbox-card">
+          <div class="section-title">
+            <div>
+              <h3>Ledger Journal & Settlement Log</h3>
+              <p>Every mutation is recorded with immutable timestamps and SHA-256 cryptographic linkage.</p>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="journal-table">
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Timestamp</th>
+                  <th>Description</th>
+                  <th>Amount (USD)</th>
+                  <th>SHA-256 Hash</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="journal-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Concurrency & OCC -->
+      <div id="tab-occ" class="tab-content">
+        <div class="sandbox-card">
+          <div class="section-title">
+            <div>
+              <h3>⚡ Optimistic Concurrency Control (OCC) Stress Simulator</h3>
+              <p>Simulate 50 parallel asynchronous coroutines slamming the same hot settlement account at the exact same millisecond.</p>
+            </div>
+            <button id="btn-run-occ" class="btn btn-primary">⚡ Fire 50 Concurrent Transfers</button>
+          </div>
+
+          <div class="idempotency-display">
+            <div class="idem-box">
+              <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">COMPLETED CONCURRENT TASKS</div>
+              <div id="occ-completed-count" class="number" style="color: var(--accent-emerald);">0 / 50</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">Parallel coroutines</div>
+            </div>
+
+            <div class="idem-box">
+              <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">SETTLEMENT ACCOUNT BALANCE</div>
+              <div id="occ-final-balance" class="number" style="color: var(--text-primary);">$50,000.00</div>
+              <div style="font-size: 0.75rem; color: var(--accent-emerald);">0 lost updates (Cent-accurate)</div>
+            </div>
+
+            <div class="idem-box">
+              <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">THROUGHPUT RATE</div>
+              <div id="occ-throughput" class="number" style="color: var(--accent-cyan);">- tx/sec</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">Microsecond CAS resolution</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Real-Time Worker Execution Stream</label>
+            <div id="occ-log-stream" class="worker-stream">
+              <div class="log-line"><span class="log-time">Ready. Click 'Fire 50 Concurrent Transfers' above.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Audit Chain Explorer -->
+      <div id="tab-audit" class="tab-content">
+        <div class="sandbox-card">
+          <div class="section-title">
+            <div>
+              <h3>🔒 Cryptographic Tamper-Evident Hash Chain</h3>
+              <p>Every transaction cryptographically links to the previous block's SHA-256 hash. Click the attack simulator to see instant tamper detection.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button id="btn-simulate-tamper" class="btn btn-danger">🚨 Hack a Past Record</button>
+              <button id="btn-restore-integrity" class="btn btn-secondary">🛡️ Restore Integrity</button>
+            </div>
+          </div>
+
+          <div id="tamper-alert-box" style="display: none; background: rgba(255, 71, 87, 0.15); border: 1px solid var(--accent-crimson); padding: 16px 20px; border-radius: var(--radius-md); margin-bottom: 24px; color: #FFF; font-size: 0.9rem;"></div>
+
+          <div class="chain-flow" id="audit-chain-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: Idempotency Lab -->
+      <div id="tab-idempotency" class="tab-content">
+        <div class="sandbox-card">
+          <div class="section-title">
+            <div>
+              <h3>🔄 Distributed Idempotency & Retry Storm Protection</h3>
+              <p>Simulate rapid-fire double-clicks or mobile network retry storms. The server guarantees execution at most once per Idempotency-Key.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button id="btn-spam-idempotency" class="btn btn-primary">⚡ Send Payment Request (Click Multiple Times)</button>
+              <button id="btn-reset-idempotency" class="btn btn-secondary">Reset</button>
+            </div>
+          </div>
+
+          <div class="idempotency-display">
+            <div class="idem-box">
+              <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">CLIENT CLICKS / RETRIES</div>
+              <div id="idem-clicks-count" class="number" style="color: var(--accent-amber);">0</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">Requests sent with identical key</div>
+            </div>
+
+            <div class="idem-box">
+              <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">TOTAL AMOUNT CHARGED</div>
+              <div id="idem-charged-count" class="number" style="color: var(--accent-emerald);">$0.00</div>
+              <div style="font-size: 0.75rem; color: var(--accent-emerald);">Protected against double-billing</div>
+            </div>
+
+            <div class="idem-box">
+              <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">IDEMPOTENCY KEY</div>
+              <div style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; color: var(--accent-cyan); margin: 16px 0;">idem_order_99824</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">SHA-256 payload fingerprint cached</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Idempotency Middleware Network Log</label>
+            <div id="idem-network-log" class="worker-stream" style="height: 180px;">
+              <div class="log-line"><span class="log-time">Ready. Click 'Send Payment Request' multiple times in rapid succession.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: Bank Statement Tie-Out -->
+      <div id="tab-reconciliation" class="tab-content">
+        <div class="sandbox-card">
+          <div class="section-title">
+            <div>
+              <h3>📑 Automated Multi-Bank Statement Tie-Out Engine</h3>
+              <p>Ingests external bank statements (CSV/OFX) and reconciles against internal ledger transactions with $0.00 discrepancy tolerance.</p>
+            </div>
+            <button id="btn-run-reconciliation" class="btn btn-primary">📑 Reconcile Statement (CSV Feed)</button>
+          </div>
+
+          <div style="background: var(--bg-input); border: 1px solid var(--border-subtle); padding: 16px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 24px;">
+            <strong style="color: var(--accent-cyan);">Sample External Bank Feed (SVB_STATEMENT_NOV_2026.csv):</strong><br>
+            Date,Amount,Description,Reference<br>
+            2026-11-01,3500.00,Acme Corp Enterprise Wire,INV-2026-001<br>
+            2026-11-02,1500.00,Consulting Fee Wire,INV-2026-002<br>
+            2026-11-02,-35.00,International Inbound Wire Fee,BANK-FEE-01
+          </div>
+
+          <div id="reconciliation-results" style="display: none;">
+            <div class="idempotency-display">
+              <div class="idem-box">
+                <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">MATCHED TRANSACTIONS</div>
+                <div class="number" style="color: var(--accent-emerald);">2 / 2</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Exact reference & amount match</div>
+              </div>
+
+              <div class="idem-box">
+                <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">UNRECORDED BANK CHARGES</div>
+                <div class="number" style="color: var(--accent-crimson);">1 Item</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">-$35.00 Wire Fee detected</div>
+              </div>
+
+              <div class="idem-box">
+                <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">NET DISCREPANCY</div>
+                <div class="number" style="color: var(--accent-amber);">-$35.00</div>
+                <div style="font-size: 0.75rem; color: var(--accent-amber);">Flagged for auto-adjustment journal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: Architecture & Resume Impact -->
+      <div id="tab-arch" class="tab-content">
+        <div class="sandbox-card">
+          <div class="section-title">
+            <div>
+              <h3>🏗️ Why LedgerMesh Stands Out to Engineering Managers</h3>
+              <p>Top engineering teams look for systems design, concurrency resilience, data integrity, and measurement over basic CRUD wrappers.</p>
+            </div>
+          </div>
+
+          <div class="architecture-cards">
+            <div class="arch-card">
+              <h4>🎯 1. Strict Double-Entry Invariants</h4>
+              <p>Financial engines cannot afford floating-point drift or unbalanced money creation. Every transaction enforces balanced debits and credits in minor currency units (cents).</p>
+              <code>Σ Debits == Σ Credits ($0.00 tolerance)</code>
+            </div>
+
+            <div class="arch-card">
+              <h4>⚡ 2. Optimistic Concurrency Control (OCC)</h4>
+              <p>Prevents balance corruption under intense concurrent loads without holding blocking database locks. Collisions trigger exponential backoff with full jitter.</p>
+              <code>CAS: WHERE id = :id AND version = :v</code>
+            </div>
+
+            <div class="arch-card">
+              <h4>🔒 3. Tamper-Evident SHA-256 Audit Trail</h4>
+              <p>Every ledger mutation is cryptographically linked to the preceding transaction hash. Any unauthorized modification to past data instantly breaks the verification chain.</p>
+              <code>H(i) = SHA-256(H(i-1) || EntryData)</code>
+            </div>
+
+            <div class="arch-card">
+              <h4>🔄 4. Distributed Idempotency</h4>
+              <p>Prevents double-charging during network drops and client retry storms. Caches responses and locks in-flight duplicate requests with HTTP 409.</p>
+              <code>Header: Idempotency-Key: &lt;uuid&gt;</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Accounts Balance Summary -->
+      <div class="sandbox-card">
+        <div class="section-title">
+          <div>
+            <h3>Current Chart of Accounts & Live Balances</h3>
+            <p>Real-time balances across assets, liabilities, and equity with monotonic version tracking.</p>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="journal-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Account Name</th>
+                <th>Account Type</th>
+                <th>Current Balance (USD)</th>
+                <th>OCC Version</th>
+              </tr>
+            </thead>
+            <tbody id="accounts-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>LedgerMesh 🏛️ | Institutional Double-Entry Financial Clearing & Audit Engine</p>
+      <p style="margin-top: 6px; font-size: 0.78rem;">Designed & Engineered for High-Throughput Fintech Systems</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
