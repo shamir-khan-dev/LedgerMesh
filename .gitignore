@@ -8,4 +8,5 @@ htmlcov/
 venv/
 .venv/
 pgdata/
-
+graphify-out/
+.DS_Store

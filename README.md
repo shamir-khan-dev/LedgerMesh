@@ -1,17 +1,46 @@
 # LedgerMesh 🏛️
 ### High-Concurrency Double-Entry Financial Clearing & Audit Engine
 
-[![Tests](https://img.shields.io/badge/tests-27%20passed-brightgreen.svg)]()
+[![CI / Automated Verification](https://github.com/shamir-khan-dev/LedgerMesh/actions/workflows/ci.yml/badge.svg)](https://github.com/shamir-khan-dev/LedgerMesh/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-28%20passed-brightgreen.svg)]()
 [![Throughput](https://img.shields.io/badge/throughput-6%2C193%20tx%2Fsec-blue.svg)]()
 [![p99 Latency](https://img.shields.io/badge/p99%20latency-1.41%20ms-purple.svg)]()
 [![Audit](https://img.shields.io/badge/audit%20trail-SHA--256%20Tamper--Evident-orange.svg)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/python-3.13-blue.svg)]()
 
 LedgerMesh is an institutional-grade financial ledger engine designed for high-throughput clearing houses, neo-banks, and fintech platforms. It enforces strict mathematical double-entry invariants, distributed idempotency guarantees, optimistic concurrency control (OCC) to eliminate race conditions, and cryptographic audit proofs.
 
 ---
 
-## 🎯 Architectural Highlights
+## 📑 Table of Contents
+- [Executive Overview & Problem Statement](#-executive-overview--problem-statement)
+- [System Architecture](#-system-architecture)
+- [The 5 Architectural Pillars](#-the-5-architectural-pillars)
+- [Interactive Web Dashboard & Live Sandboxes](#-interactive-web-dashboard--live-sandboxes)
+- [Concurrency & Performance Benchmarks](#-concurrency--performance-benchmarks)
+- [Project Directory Structure](#-project-directory-structure)
+- [Quickstart & Setup](#-quickstart--setup)
+- [REST API Reference](#-rest-api-reference)
+- [Resume Impact & Interview Talking Points](#-resume-impact--interview-talking-points)
+- [Author & Contact](#-author--contact)
+- [License](#-license)
+
+---
+
+## 💡 Executive Overview & Problem Statement
+
+In standard web applications (blogs, social networks, simple CRUD), an occasional race condition or floating-point imprecision is a minor annoyance. In **fintech and institutional clearing**, however, these issues cause catastrophic failures:
+* **Floating-Point Imprecision:** Using standard IEEE-754 floats (`0.1 + 0.2 = 0.30000000000000004`) causes balance drift over millions of transactions.
+* **Race Conditions & Lost Updates:** High-concurrency debit/credit requests against the same hot liquidity pool or settlement account can overwrite each other unless concurrency boundaries are strictly enforced.
+* **Duplicate Charges:** Network packet drops and client retry storms can double-charge customers unless an atomic idempotency layer deduplicates requests.
+* **Silent Database Tampering:** Traditional databases have no mathematical proof that historical ledger entries weren't modified or deleted.
+
+**LedgerMesh was engineered from the ground up to solve all four failure modes.**
+
+---
+
+## 🏗️ System Architecture
 
 ```mermaid
 flowchart TD
@@ -33,17 +62,21 @@ flowchart TD
     Reconciler --> Report["Reconciliation Report\n($0.00 Discrepancy Tolerance)"]
 ```
 
+---
+
+## 🎯 The 5 Architectural Pillars
+
 ### 1. Strict Double-Entry Invariant Enforcement
 Every financial mutation requires balanced debit and credit entries:
 $$\sum_{\text{direction}=\text{DEBIT}} \text{amount} = \sum_{\text{direction}=\text{CREDIT}} \text{amount}$$
-* **No Floating-Point Imprecision:** All values are stored and calculated in integer minor currency units (cents), preventing IEEE 754 precision drift.
-* **Standard 5-Element Accounting:** Enforces normal balance equations across `ASSET`, `LIABILITY`, `EQUITY`, `REVENUE`, and `EXPENSE` accounts.
-* **Zero Discrepancy Tolerance:** Transactions that deviate by even 1 cent are rejected prior to persistence.
+* **Minor Currency Unit Math:** All values are calculated and stored in integer cents (e.g. `$100.50` = `10050`), eliminating floating-point rounding errors.
+* **Standard 5-Element Accounting:** Enforces normal balance behavior across `ASSET`, `LIABILITY`, `EQUITY`, `REVENUE`, and `EXPENSE` accounts.
+* **Zero Discrepancy Tolerance:** Any transaction that deviates by even 1 cent is rejected at the domain invariant boundary prior to persistence.
 
 ### 2. Distributed Idempotency Layer
-Prevents duplicate financial executions caused by network timeouts, client retry storms, or upstream proxy drops.
-* Intercepts `Idempotency-Key` headers and computes SHA-256 fingerprints of `(method, path, body)`.
-* **Atomic State Machine:** Transitions between `IN_FLIGHT` (locks concurrent duplicate executions with `HTTP 409`), `COMPLETED` (serves cached response payload), and `FAILED`.
+Prevents duplicate financial executions during network drops, timeouts, or client retry storms.
+* Computes deterministic SHA-256 request fingerprints over `(method, path, body)`.
+* **Atomic State Machine:** Transitions between `IN_FLIGHT` (locks concurrent duplicate executions with `HTTP 409`), `COMPLETED` (serves cached response directly from memory/Redis), and `FAILED`.
 * **Payload Mismatch Detection:** Rejects reuse of identical keys with mutated transaction parameters.
 
 ### 3. Optimistic Concurrency Control (OCC)
@@ -51,12 +84,12 @@ Eliminates lost updates and balance corruption during high-frequency concurrent 
 * Every account row maintains a monotonic `version` counter.
 * Applies atomic Compare-And-Swap (CAS):
   $$\text{UPDATE accounts SET balance = balance + } \Delta, \text{version} = v + 1 \text{ WHERE id} = \text{acc\_id AND version} = v$$
-* When collisions occur, the `LedgerExecutor` initiates automatic exponential backoff with full jitter before cleanly committing.
+* When collisions occur under high concurrency, the `LedgerExecutor` initiates automatic exponential backoff with full jitter before cleanly committing.
 
 ### 4. Cryptographic Tamper-Evident Audit Trail
 Every posted transaction is cryptographically linked to its predecessor using a SHA-256 hash chain:
 $$H_i = \text{SHA-256}\Big(H_{i-1} \parallel \text{reference\_id} \parallel \text{timestamp} \parallel \text{CanonicalEntries}\Big)$$
-* If an adversary alters any past row, amount, or timestamp in the database, the cryptographic hash verification immediately flags the tampered transaction ID.
+* If an attacker alters any past row, amount, or timestamp in the database, the cryptographic hash verification immediately flags the exact compromised transaction ID.
 * Provides Merkle root aggregation for external attestation and regulatory reporting.
 
 ### 5. Automated Multi-Bank Statement Tie-Out Engine
@@ -67,9 +100,28 @@ Ingests external bank clearing statements (CSV and JSON) and reconciles them aga
 
 ---
 
+## 🌐 Interactive Web Dashboard & Live Sandboxes
+
+LedgerMesh includes a built-in, dark-mode fintech web dashboard that allows users and recruiters to interactively test every system capability.
+
+To launch the dashboard locally:
+```bash
+python -m uvicorn src.api.main:app --reload --port 8000
+```
+Then visit **[http://localhost:8000/](http://localhost:8000/)**.
+
+### Included Interactive Playgrounds:
+1. **⚖️ Double-Entry Composer:** Live equation balance bar that validates $\sum \text{Debits} = \sum \text{Credits}$ as you type and commits transactions to the journal table.
+2. **⚡ Concurrency & OCC Stress Simulator:** Fires 50 parallel coroutines against a shared liquidity pool with real-time streaming logs, demonstrating zero lost updates.
+3. **🔒 Cryptographic Audit Chain Explorer:** Visualizes SHA-256 blocks with a "Hack a Past Record" button that simulates an attack and shows instant cryptographic detection.
+4. **🔄 Idempotency Lab:** Rapid-click test demonstrating that duplicate payment clicks are safely deduplicated and charged only once.
+5. **📑 Bank Statement Tie-Out Desk:** Loads sample bank statements, matches transactions, and surfaces unrecorded fees down to the cent.
+
+---
+
 ## ⚡ Concurrency & Performance Benchmarks
 
-Benchmark executed on 500 concurrent financial clearing transactions across 20 asynchronous worker coroutines hitting the same hot liquidity pool:
+Benchmark executed on 500 concurrent financial clearing transactions across 20 asynchronous worker coroutines hitting the same hot liquidity pool ([benchmarks/run_benchmark.py](file:///c:/Users/shami/OneDrive/Desktop/Coding/Backend%20Projects/LedgerMesh/benchmarks/run_benchmark.py)):
 
 | Performance Metric | Measured Value | Industry Standard |
 | :--- | :--- | :--- |
@@ -81,24 +133,32 @@ Benchmark executed on 500 concurrent financial clearing transactions across 20 a
 | **Balance Invariant Discrepancy** | **$0.00 (Exact)** | $0.00 |
 | **Audit Chain Integrity** | **100% Verified (0 Tamper Errors)** | 100% |
 
-To reproduce the benchmark on your local machine:
+To reproduce the benchmark:
 ```bash
 python benchmarks/run_benchmark.py
 ```
 
 ---
 
-## 🛠️ Directory Structure
+## 📁 Project Directory Structure
 
 ```
 LedgerMesh/
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # GitHub Actions CI automated test workflow
 ├── benchmarks/
 │   └── run_benchmark.py        # High-throughput load test & p99 latency profiler
 ├── docker/
 │   ├── Dockerfile              # Production container definition
 │   └── docker-compose.yml      # PostgreSQL with ACID synchronous commit + Redis
+├── frontend/
+│   ├── app.js                  # Frontend state machine & WebCrypto hashing
+│   ├── index.html              # Interactive dashboard & live sandboxes
+│   └── styles.css              # Custom institutional dark theme
 ├── scripts/
-│   └── demo_ledger.py          # Interactive end-to-end architectural demonstration
+│   ├── demo_ledger.py          # Terminal walkthrough of all features
+│   └── verify_frontend.py      # Automated Playwright browser verification
 ├── src/
 │   ├── api/                    # FastAPI endpoints, trace middleware, & schema
 │   ├── audit/                  # SHA-256 hash chaining & Merkle root generator
@@ -111,6 +171,8 @@ LedgerMesh/
 │   ├── concurrency/            # High-concurrency race condition simulations
 │   ├── integration/            # Full API request/response integration tests
 │   └── unit/                   # Invariant, audit chain, OCC, & parser unit tests
+├── .gitignore
+├── LICENSE                     # MIT Open Source License
 ├── pytest.ini
 ├── requirements.txt
 └── README.md
@@ -118,42 +180,44 @@ LedgerMesh/
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Quickstart & Setup
 
-### 1. Installation
-Clone the repository and install requirements:
+### 1. Clone & Install
 ```bash
 git clone https://github.com/shamir-khan-dev/LedgerMesh.git
 cd LedgerMesh
 pip install -r requirements.txt
 ```
 
-### 2. Run Test Suite
-Execute the 27 unit, integration, and high-concurrency race condition tests:
+### 2. Run Test Suite (28 Tests)
 ```bash
 pytest -v
 ```
 
-### 3. Run Interactive Demonstration
-See double-entry clearing, OCC race condition protection, adversarial database tampering detection, and bank statement tie-out in real time:
+### 3. Run Interactive Terminal Demonstration
 ```bash
 python scripts/demo_ledger.py
 ```
 
-### 4. Start the REST API
-Launch the high-performance ASGI server:
+### 4. Run Concurrency Benchmark
+```bash
+python benchmarks/run_benchmark.py
+```
+
+### 5. Start the Live Server & Web Dashboard
 ```bash
 uvicorn src.api.main:app --reload --port 8000
 ```
-* **Interactive OpenAPI Documentation:** [http://localhost:8000/docs](http://localhost:8000/docs)
-* **Prometheus Telemetry Metrics:** [http://localhost:8000/metrics](http://localhost:8000/metrics)
+* **Web Dashboard:** [http://localhost:8000/](http://localhost:8000/)
+* **Interactive OpenAPI Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+* **Prometheus Telemetry:** [http://localhost:8000/metrics](http://localhost:8000/metrics)
 * **Health Check:** [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
 
 ---
 
 ## 📖 REST API Reference
 
-### 1. Create Account
+### Create Account
 ```bash
 curl -X POST http://localhost:8000/api/v1/accounts \
   -H "Content-Type: application/json" \
@@ -166,7 +230,7 @@ curl -X POST http://localhost:8000/api/v1/accounts \
   }'
 ```
 
-### 2. Post Transaction with Idempotency
+### Post Transaction with Idempotency-Key
 ```bash
 curl -X POST http://localhost:8000/api/v1/transactions \
   -H "Content-Type: application/json" \
@@ -181,22 +245,12 @@ curl -X POST http://localhost:8000/api/v1/transactions \
   }'
 ```
 
-### 3. Cryptographic Audit Verification
+### Verify Cryptographic Audit Chain
 ```bash
 curl -X GET http://localhost:8000/api/v1/audit/verify
 ```
-**Response:**
-```json
-{
-  "is_valid": true,
-  "total_verified": 500,
-  "tampered_transaction_id": null,
-  "error_message": null,
-  "merkle_root": "a4d3f5e8b0c..."
-}
-```
 
-### 4. Bank Statement Reconciliation
+### Run Bank Statement Reconciliation
 ```bash
 curl -X POST "http://localhost:8000/api/v1/reconciliation/reconcile?account_id=acc_cash_id&statement_id=STMT_NOV" \
   -H "Content-Type: application/json" \
@@ -207,20 +261,29 @@ curl -X POST "http://localhost:8000/api/v1/reconciliation/reconcile?account_id=a
 
 ---
 
-## 💼 Resume Bullet Points
-
-For resumes and technical interview showcases:
+## 💼 Resume Impact & Interview Talking Points
 
 * **High-Concurrency Systems:**
-  > *"Architected an institutional double-entry financial clearing engine in Python (FastAPI, asyncio) sustaining **6,100+ transactions/sec** with **p99 latency < 1.5ms**, implementing optimistic concurrency control (OCC) to prevent lost updates under intense race conditions."*
+  > *"Architected an institutional double-entry financial clearing engine in Python (FastAPI, asyncio) sustaining **6,100+ transactions/sec** with **p99 latency < 1.5ms**, implementing optimistic concurrency control (OCC) to eliminate race conditions under intense concurrent loads."*
 
 * **Data Integrity & Cryptography:**
-  > *"Engineered tamper-evident SHA-256 cryptographic audit trails and Merkle roots linking historical ledger entries, guaranteeing mathematically verifiable immutability and instant detection of unauthorized state mutations."*
+  > *"Engineered tamper-evident SHA-256 cryptographic audit trails and Merkle roots linking historical ledger mutations, guaranteeing mathematically verifiable immutability and instant detection of state tampering."*
 
 * **Reliability & Reconciliation:**
-  > *"Implemented distributed idempotency middleware preventing duplicate payments during network retry storms, alongside an automated multi-bank statement reconciliation engine matching internal and external feeds with **$0.00 discrepancy tolerance**."*
+  > *"Implemented distributed idempotency middleware preventing duplicate payment execution during network drops, alongside an automated multi-bank statement reconciliation engine matching feeds with **\$0.00 discrepancy tolerance**."*
+
+---
+
+## 👤 Author & Contact
+
+**Shamir Khan**
+- **Education:** B.Sc. in Computer Science, Wilfrid Laurier University (Expected 2028)
+- **GitHub:** [@shamir-khan-dev](https://github.com/shamir-khan-dev)
+- **LinkedIn:** [linkedin.com/in/shamir-khan-40698123b](https://www.linkedin.com/in/shamir-khan-40698123b/)
+- **Email:** [shamirk2121@gmail.com](mailto:shamirk2121@gmail.com)
 
 ---
 
 ## 📄 License
-MIT License. Developed for high-integrity financial engineering.
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
