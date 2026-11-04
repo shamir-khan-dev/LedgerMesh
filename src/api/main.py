@@ -126,6 +126,7 @@ def create_app(
         metrics_reg.increment(f"http_status_{response.status_code}")
         return response
 
+    @app.get("/health")
     @app.get("/api/v1/health")
     async def health_check():
         return {"status": "healthy", "service": "LedgerMesh", "version": "1.0.0"}
