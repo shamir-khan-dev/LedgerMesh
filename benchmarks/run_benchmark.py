@@ -99,6 +99,28 @@ async def run_benchmark(total_transactions: int = 500, concurrency_workers: int 
     table.add_row("Cryptographic Audit Chain Integrity", "[bold green]100% Verified (0 Tamper Errors)[/bold green]" if audit_res.is_valid else "[bold red]FAILED[/bold red]")
 
     console.print(table)
+
+    results = {
+        "throughput_tx_per_sec": round(float(throughput), 2),
+        "concurrency_workers": concurrency_workers,
+        "total_transactions": total_transactions,
+        "latency_ms": {
+            "mean": round(float(np.mean(lat_arr)), 2),
+            "p50": round(float(np.percentile(lat_arr, 50)), 2),
+            "p90": round(float(np.percentile(lat_arr, 90)), 2),
+            "p95": round(float(np.percentile(lat_arr, 95)), 2),
+            "p99": round(float(np.percentile(lat_arr, 99)), 2),
+            "max": round(float(np.max(lat_arr)), 2),
+        },
+        "audit_chain_valid": bool(audit_res.is_valid)
+    }
+
+    import json
+    import os
+    out_file = os.path.join(os.path.dirname(__file__), "benchmark_results.json")
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
+
     return {
         "throughput": throughput,
         "p50": float(np.percentile(lat_arr, 50)),

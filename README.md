@@ -3,8 +3,9 @@
 
 [![CI / Automated Verification](https://github.com/shamir-khan-dev/LedgerMesh/actions/workflows/ci.yml/badge.svg)](https://github.com/shamir-khan-dev/LedgerMesh/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-28%20passed-brightgreen.svg)]()
-[![Throughput](https://img.shields.io/badge/throughput-6%2C193%20tx%2Fsec-blue.svg)]()
-[![p99 Latency](https://img.shields.io/badge/p99%20latency-1.41%20ms-purple.svg)]()
+[![Throughput](https://img.shields.io/badge/throughput-10%2C790%20tx%2Fsec-blue.svg)](benchmarks/benchmark_results.json)
+[![p50 Latency](https://img.shields.io/badge/p50%20latency-0.05%20ms-purple.svg)](benchmarks/benchmark_results.json)
+[![p99 Latency](https://img.shields.io/badge/p99%20latency-0.18%20ms-purple.svg)](benchmarks/benchmark_results.json)
 [![Audit](https://img.shields.io/badge/audit%20trail-SHA--256%20Tamper--Evident-orange.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/python-3.13-blue.svg)]()
