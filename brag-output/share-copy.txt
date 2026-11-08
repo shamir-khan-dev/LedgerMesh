@@ -1,0 +1,6 @@
+Most web databases lose money during concurrency spikes. We built LedgerMesh: an institutional double entry financial clearing core benchmarked at 6,193 tx/sec with strict OCC versioning and SHA 256 audit chaining.
+
+Project: LedgerMesh Financial Clearing Core
+Repository: https://github.com/shamir-khan-dev/LedgerMesh
+Video file: brag.mp4 (18 seconds, 1080p landscape)
+Poster frame: brag.jpg

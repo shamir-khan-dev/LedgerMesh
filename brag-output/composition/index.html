@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>LedgerMesh Launch Video</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --ground: #07090E;
+        --surface: #121824;
+        --surface_subtle: #0D121B;
+        --border: #1E293B;
+        --border_strong: #334155;
+        --ink: #F8FAFC;
+        --ink_muted: #94A3B8;
+        --emerald: #10B981;
+        --cyan: #38BDF8;
+        --font_display: 'Plus Jakarta Sans', sans-serif;
+        --font_mono: 'JetBrains Mono', monospace;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html, body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--ground);
+        font-family: var(--font_display);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+
+      .bg_grid {
+        position: absolute;
+        inset: 0;
+        background-image: 
+          linear-gradient(to right, rgba(30, 41, 59, 0.4) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(30, 41, 59, 0.4) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.7;
+      }
+
+      /* Base Scene Container */
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Frame 0 poster active */
+      #scene1 {
+        opacity: 1;
+      }
+
+      /* Scene 1: Hook & Benchmark */
+      .hook_label {
+        font-family: var(--font_mono);
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--cyan);
+        margin-bottom: 24px;
+        padding: 10px 22px;
+        background: rgba(56, 189, 248, 0.1);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        border-radius: 6px;
+      }
+
+      .hook_title {
+        font-size: 76px;
+        font-weight: 800;
+        text-align: center;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        max-width: 1400px;
+        margin-bottom: 44px;
+      }
+
+      .benchmark_card {
+        display: flex;
+        align-items: center;
+        gap: 36px;
+        background: var(--surface);
+        border: 1px solid var(--border_strong);
+        border-radius: 8px;
+        padding: 28px 48px;
+      }
+
+      .stat_item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .stat_label {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--ink_muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .stat_value {
+        font-family: var(--font_mono);
+        font-size: 42px;
+        font-weight: 700;
+        color: var(--emerald);
+      }
+
+      .stat_divider {
+        width: 1px;
+        height: 56px;
+        background: var(--border);
+      }
+
+      /* Scene 2: Double Entry Equation */
+      .equation_card {
+        width: 1280px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 52px;
+        display: flex;
+        flex-direction: column;
+        gap: 36px;
+      }
+
+      .scene_header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 24px;
+      }
+
+      .scene_header h2 {
+        font-size: 44px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .scene_header p {
+        font-size: 22px;
+        color: var(--ink_muted);
+      }
+
+      .equation_row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--surface_subtle);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 32px 40px;
+        font-family: var(--font_mono);
+      }
+
+      .eq_leg {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .eq_tag {
+        font-size: 18px;
+        font-weight: 700;
+        padding: 8px 18px;
+        border-radius: 4px;
+      }
+
+      .eq_tag.debit {
+        background: rgba(56, 189, 248, 0.15);
+        color: var(--cyan);
+      }
+
+      .eq_tag.credit {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--emerald);
+      }
+
+      .eq_amount {
+        font-size: 44px;
+        font-weight: 700;
+        color: #FFFFFF;
+      }
+
+      .eq_symbol {
+        font-size: 46px;
+        color: var(--ink_muted);
+      }
+
+      .badge_balanced {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.4);
+        padding: 14px 28px;
+        border-radius: 6px;
+        color: var(--emerald);
+        font-family: var(--font_mono);
+        font-size: 22px;
+        font-weight: 700;
+        align-self: flex-start;
+      }
+
+      /* Scene 3: OCC Concurrency Stress */
+      .occ_grid {
+        width: 1360px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+      }
+
+      .occ_metrics_panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .occ_metric_box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 26px;
+      }
+
+      .occ_metric_box .label {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ink_muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .occ_metric_box .val {
+        font-family: var(--font_mono);
+        font-size: 44px;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin: 6px 0;
+      }
+
+      .occ_metric_box .desc {
+        font-size: 18px;
+        color: var(--emerald);
+      }
+
+      .telemetry_stream {
+        background: #090D14;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 24px;
+        font-family: var(--font_mono);
+        font-size: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        height: 420px;
+        overflow: hidden;
+      }
+
+      .log_entry {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .log_t { color: var(--ink_muted); }
+      .log_success { color: var(--emerald); font-weight: 600; }
+      .log_retry { color: #F59E0B; }
+
+      /* Scene 4: Cryptographic Audit */
+      .audit_chain {
+        display: flex;
+        gap: 24px;
+        margin-top: 36px;
+      }
+
+      .block_card {
+        width: 400px;
+        background: var(--surface);
+        border: 1px solid rgba(16, 185, 129, 0.5);
+        border-radius: 8px;
+        padding: 28px;
+      }
+
+      .block_header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        font-size: 18px;
+        font-family: var(--font_mono);
+        font-weight: 700;
+        color: var(--emerald);
+      }
+
+      .block_hash {
+        font-family: var(--font_mono);
+        font-size: 14px;
+        color: var(--cyan);
+        word-break: break-all;
+        line-height: 1.4;
+      }
+
+      /* Scene 5: Outro */
+      .brand_monogram {
+        width: 100px;
+        height: 100px;
+        border-radius: 12px;
+        background: var(--surface);
+        border: 2px solid var(--border_strong);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--emerald);
+        margin-bottom: 32px;
+      }
+
+      .outro_title {
+        font-size: 76px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 18px;
+      }
+
+      .outro_subtitle {
+        font-size: 30px;
+        color: var(--ink_muted);
+        margin-bottom: 36px;
+      }
+
+      .repo_badge {
+        font-family: var(--font_mono);
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--cyan);
+        background: var(--surface);
+        border: 1px solid var(--border_strong);
+        padding: 16px 36px;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="18"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div class="bg_grid" data-layout-ignore="true"></div>
+
+      <!-- Background Audio -->
+      <audio id="bgm" src="assets/music/bgm.mp3" data-start="0" data-duration="18"></audio>
+
+      <!-- SCENE 1: The Dilemma & Verified Benchmark (0s to 3.5s) -->
+      <div id="scene1" class="scene clip" data-start="0" data-duration="3.5" data-track-index="1">
+        <div class="hook_label">CRITICAL INFRASTRUCTURE BOTTLENECK</div>
+        <h1 class="hook_title">Standard databases fail in financial systems.</h1>
+        <div class="benchmark_card">
+          <div class="stat_item">
+            <span class="stat_label">Verified Throughput</span>
+            <span class="stat_value">6,193 tx/sec</span>
+          </div>
+          <div class="stat_divider"></div>
+          <div class="stat_item">
+            <span class="stat_label">99th Percentile Latency</span>
+            <span class="stat_value" style="color: var(--cyan);">1.41 ms</span>
+          </div>
+          <div class="stat_divider"></div>
+          <div class="stat_item">
+            <span class="stat_label">Balance Variance</span>
+            <span class="stat_value">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 2: Double Entry Equation (3.5s to 7.5s) -->
+      <div id="scene2" class="scene clip" data-start="3.5" data-duration="4.0" data-track-index="1">
+        <div class="equation_card">
+          <div class="scene_header">
+            <div>
+              <h2>Strict Double Entry Invariants</h2>
+              <p>Unbalanced entries are mathematically rejected at the domain boundary.</p>
+            </div>
+            <div class="badge_balanced">✓ INVARIANT BALANCED</div>
+          </div>
+          <div class="equation_row">
+            <div class="eq_leg">
+              <span class="eq_tag debit">TOTAL DEBITS</span>
+              <span class="eq_amount">$250.00</span>
+            </div>
+            <span class="eq_symbol">=</span>
+            <div class="eq_leg">
+              <span class="eq_tag credit">TOTAL CREDITS</span>
+              <span class="eq_amount">$250.00</span>
+            </div>
+            <div class="eq_leg">
+              <span style="font-size: 18px; color: var(--ink_muted);">VARIANCE:</span>
+              <span style="font-size: 32px; font-weight: 700; color: var(--emerald);">$0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 3: OCC Concurrency Stress (7.5s to 12.0s) -->
+      <div id="scene3" class="scene clip" data-start="7.5" data-duration="4.5" data-track-index="1">
+        <div class="occ_grid">
+          <div class="occ_metrics_panel">
+            <div class="occ_metric_box">
+              <div class="label">CONCURRENT COROUTINES</div>
+              <div id="occ_count_disp" class="val">50 / 50 SETTLED</div>
+              <div class="desc">Zero lost updates verified</div>
+            </div>
+            <div class="occ_metric_box">
+              <div class="label">FINAL SETTLEMENT BALANCE</div>
+              <div class="val">$50,500.00</div>
+              <div class="desc">Minor unit cent accuracy preserved</div>
+            </div>
+            <div class="occ_metric_box">
+              <div class="label">CONFLICT RESOLUTION</div>
+              <div class="val" style="font-size: 32px; color: var(--cyan);">ATOMIC CAS + FULL JITTER</div>
+              <div class="desc">Zero pessimistic locks held</div>
+            </div>
+          </div>
+
+          <div class="telemetry_stream">
+            <div class="log_entry"><span class="log_t">[+0.2ms]</span> <span class="log_success">Worker #01: CAS atomic commit on v1 -> SUCCESS</span></div>
+            <div class="log_entry"><span class="log_t">[+0.5ms]</span> <span class="log_retry">Worker #02: Version collision v1 -> Backoff 2.4ms</span></div>
+            <div class="log_entry"><span class="log_t">[+1.1ms]</span> <span class="log_success">Worker #03: CAS atomic commit on v2 -> SUCCESS</span></div>
+            <div class="log_entry"><span class="log_t">[+1.8ms]</span> <span class="log_success">Worker #02: Retry commit on v3 -> SUCCESS</span></div>
+            <div class="log_entry"><span class="log_t">[+2.6ms]</span> <span class="log_success">Worker #04: CAS atomic commit on v4 -> SUCCESS</span></div>
+            <div class="log_entry"><span class="log_t">[+3.1ms]</span> <span class="log_success">Worker #05: CAS atomic commit on v5 -> SUCCESS</span></div>
+            <div class="log_entry"><span class="log_t">[+3.9ms]</span> <span class="log_success">Worker #06: CAS atomic commit on v6 -> SUCCESS</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4: Cryptographic Audit (12.0s to 15.0s) -->
+      <div id="scene4" class="scene clip" data-start="12.0" data-duration="3.0" data-track-index="1">
+        <h2 style="font-size: 44px; margin-bottom: 10px;">Cryptographic Audit Trail</h2>
+        <p style="font-size: 22px; color: var(--ink_muted); margin-bottom: 28px;">Immutable SHA 256 hash chaining across every balance mutation.</p>
+        <div class="audit_chain">
+          <div class="block_card">
+            <div class="block_header"><span>BLOCK #00 (GENESIS)</span><span>VERIFIED</span></div>
+            <div class="block_hash" data-layout-ignore="true">0000000000000000000000000000000000000000000000000000000000000000</div>
+          </div>
+          <div class="block_card">
+            <div class="block_header"><span>BLOCK #01 (INV_4821)</span><span>VERIFIED</span></div>
+            <div class="block_hash" data-layout-ignore="true">d5a8b7924c0ef831aa1109bc4e3a89078f4b12dc77e09e1e2472b5cd304bfa91</div>
+          </div>
+          <div class="block_card">
+            <div class="block_header"><span>BLOCK #02 (INV_4822)</span><span>VERIFIED</span></div>
+            <div class="block_hash" data-layout-ignore="true">3f90b14ac87e594d2105e46820c74900ef2a6d71c890be4299b87a03491ea734</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 5: Outro & Monogram (15.0s to 18.0s) -->
+      <div id="scene5" class="scene clip" data-start="15.0" data-duration="3.0" data-track-index="1">
+        <div class="brand_monogram">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2"/>
+            <path d="M3 9h18"/>
+            <path d="M9 21V9"/>
+          </svg>
+        </div>
+        <h1 class="outro_title">LedgerMesh</h1>
+        <p class="outro_subtitle">Institutional Double Entry Clearing &amp; Audit Engine</p>
+        <div class="repo_badge">github.com/shamir-khan-dev/LedgerMesh</div>
+      </div>
+
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Scene 1: Initial state (Settled on Frame 0 for poster) -> transition out at 3.2s
+      tl.to("#scene1", 
+        { opacity: 0, scale: 1.02, duration: 0.3, ease: "power2.in" }, 
+        3.2
+      );
+
+      // Scene 2 Animation (3.5 to 7.5s)
+      tl.fromTo("#scene2", 
+        { opacity: 0, y: 20 }, 
+        { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 
+        3.5
+      );
+      // Subtle pulse during Scene 2 to prevent dead stretch
+      tl.to(".equation_card", { scale: 1.01, duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, 4.5);
+      tl.to("#scene2", 
+        { opacity: 0, y: -20, duration: 0.3, ease: "power2.in" }, 
+        7.2
+      );
+
+      // Scene 3 Animation (7.5 to 12.0s)
+      tl.fromTo("#scene3", 
+        { opacity: 0, scale: 0.98 }, 
+        { opacity: 1, scale: 1, duration: 0.4, ease: "power2.out" }, 
+        7.5
+      );
+      // Subtle telemetry motion in Scene 3
+      tl.to(".telemetry_stream", { y: -15, duration: 2.0, ease: "power1.out" }, 8.5);
+      tl.to("#scene3", 
+        { opacity: 0, scale: 1.02, duration: 0.3, ease: "power2.in" }, 
+        11.7
+      );
+
+      // Scene 4 Animation (12.0 to 15.0s)
+      tl.fromTo("#scene4", 
+        { opacity: 0, y: 20 }, 
+        { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 
+        12.0
+      );
+      tl.to("#scene4", 
+        { opacity: 0, y: -20, duration: 0.3, ease: "power2.in" }, 
+        14.7
+      );
+
+      // Scene 5 Animation (15.0 to 18.0s)
+      tl.fromTo("#scene5", 
+        { opacity: 0, scale: 0.95 }, 
+        { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 
+        15.0
+      );
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

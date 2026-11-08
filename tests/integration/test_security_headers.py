@@ -21,3 +21,4 @@ def test_static_dashboard_security_headers_present(client):
     assert res.status_code == 200
     assert res.headers.get("X-Content-Type-Options") == "nosniff"
     assert res.headers.get("X-Frame-Options") == "DENY"
+

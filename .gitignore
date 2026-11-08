@@ -9,4 +9,5 @@ venv/
 .venv/
 pgdata/
 graphify-out/
+.hyperframes/
 .DS_Store

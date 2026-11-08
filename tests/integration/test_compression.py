@@ -13,3 +13,4 @@ def test_gzip_compression_enabled(client):
     res = client.get("/", headers=headers)
     assert res.status_code == 200
     assert res.headers.get("Content-Encoding") == "gzip"
+
