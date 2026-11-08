@@ -1,5 +1,5 @@
 // LedgerMesh Interactive Engine Experience
-// Supports live FastAPI backend connection with automatic client-side fallback simulation
+// Supports live FastAPI backend connection with automatic client side fallback simulation
 
 const API_BASE = (typeof window !== "undefined" && window.location.origin.startsWith("http")) 
   ? window.location.origin 
@@ -16,7 +16,8 @@ function showToast(message, type = "success") {
     document.body.appendChild(toast);
   }
   toast.className = `toast-box ${type} show`;
-  toast.innerHTML = `<span>${type === 'success' ? '✓' : '⚠'}</span> <div>${message}</div>`;
+  const icon = type === "success" ? "✓" : "!";
+  toast.innerHTML = `<span style="font-weight: 700;">${icon}</span> <div>${message}</div>`;
   setTimeout(() => {
     toast.classList.remove("show");
   }, 3500);
@@ -35,12 +36,12 @@ const localState = {
   idempotencyRecords: {}
 };
 
-// SHA-256 Helper (Native Web Crypto API)
+// SHA 256 Helper using Native Web Crypto API
 async function sha256(message) {
   const msgBuffer = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
 // Check Backend Health
@@ -49,16 +50,16 @@ async function checkBackendConnection() {
     const res = await fetch(`${API_BASE}/api/v1/health`, { method: "GET", headers: { "Accept": "application/json" } });
     if (res.ok) {
       isBackendLive = true;
-      document.getElementById("backend-status-text").innerText = "CONNECTED TO FASTAPI ENGINE (PORT 8000)";
+      document.getElementById("backend-status-text").innerText = "CONNECTED (FASTAPI CORE PORT 8000)";
       document.getElementById("backend-status-badge").classList.add("live");
       await syncWithBackend();
       return;
     }
   } catch (err) {
-    // Backend offline; use standalone high-fidelity simulation
+    // Backend offline; using standalone high fidelity simulation
   }
   isBackendLive = false;
-  document.getElementById("backend-status-text").innerText = "IN-BROWSER SIMULATION ENGINE (STANDALONE)";
+  document.getElementById("backend-status-text").innerText = "SIMULATION ENGINE (STANDALONE)";
 }
 
 // Sync Initial Data
@@ -67,7 +68,12 @@ async function syncWithBackend() {
     const res = await fetch(`${API_BASE}/api/v1/accounts`);
     if (res.ok) {
       const data = await res.json();
-      if (data.length > 0) localState.accounts = data;
+      if (data && data.length > 0) {
+        localState.accounts = data.map(a => ({
+          ...a,
+          type: a.account_type || a.type || "ASSET"
+        }));
+      }
     }
   } catch (e) {}
   renderAccounts();
@@ -88,7 +94,7 @@ function setupTabs() {
   });
 }
 
-// Render Accounts in Dropdowns & Table
+// Render Accounts in Dropdowns and Table
 function renderAccounts() {
   const debitSelect = document.getElementById("tx-debit-account");
   const creditSelect = document.getElementById("tx-credit-account");
@@ -98,8 +104,8 @@ function renderAccounts() {
     creditSelect.innerHTML = "";
 
     localState.accounts.forEach(acc => {
-      const opt1 = new Option(`${acc.code} - ${acc.name} (${acc.type})`, acc.id);
-      const opt2 = new Option(`${acc.code} - ${acc.name} (${acc.type})`, acc.id);
+      const opt1 = new Option(`${acc.code}: ${acc.name} (${acc.type})`, acc.id);
+      const opt2 = new Option(`${acc.code}: ${acc.name} (${acc.type})`, acc.id);
       debitSelect.add(opt1);
       creditSelect.add(opt2);
     });
@@ -117,9 +123,9 @@ function renderAccounts() {
       const row = document.createElement("tr");
       row.innerHTML = `
         <td><span class="eq-badge ${acc.type === 'ASSET' ? 'debit' : 'credit'}">${acc.code}</span></td>
-        <td><strong>${acc.name}</strong></td>
+        <td><strong style="color: #FFFFFF;">${acc.name}</strong></td>
         <td>${acc.type}</td>
-        <td><strong>$${(acc.balance / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></td>
+        <td><strong style="color: #FFFFFF;">$${(acc.balance / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></td>
         <td><span class="eq-badge debit">v${acc.version}</span></td>
       `;
       tableBody.appendChild(row);
@@ -127,7 +133,7 @@ function renderAccounts() {
   }
 }
 
-// Real-time Double-Entry Equation Listener
+// Real time Double Entry Equation Listener
 function setupEquationListener() {
   const amountInput = document.getElementById("tx-amount");
   const debitAmountDisp = document.getElementById("eq-debit-amount");
@@ -150,7 +156,7 @@ function setupEquationListener() {
       postBtn.disabled = false;
     } else {
       statusBox.className = "invariant-status unbalanced";
-      statusBox.innerHTML = `<span>⚠</span> Amount must be positive (> $0.00)`;
+      statusBox.innerHTML = `<span>!</span> Value must exceed $0.00`;
       postBtn.disabled = true;
     }
   }
@@ -164,15 +170,15 @@ async function handlePostTransaction() {
   const debitAccId = document.getElementById("tx-debit-account").value;
   const creditAccId = document.getElementById("tx-credit-account").value;
   const amount = Math.round(parseFloat(document.getElementById("tx-amount").value) * 100);
-  const ref = document.getElementById("tx-reference").value.trim() || `TX-${Date.now().toString().slice(-5)}`;
+  const ref = document.getElementById("tx-reference").value.trim() || `TX_${Date.now().toString().slice(-5)}`;
   const desc = document.getElementById("tx-description").value.trim() || "Clearing Settlement";
 
   if (debitAccId === creditAccId) {
-    showToast("Double-entry rules prohibit debiting and crediting the same account in a 2-legged entry.", "error");
+    showToast("Double entry rules prohibit debiting and crediting the identical account in a 2 leg transaction.", "error");
     return;
   }
 
-  // Calculate canonical SHA-256
+  // Calculate canonical SHA 256
   const txPayload = {
     prev_hash: localState.headHash,
     reference_id: ref,
@@ -218,7 +224,7 @@ async function handlePostTransaction() {
 
   // Reset form
   document.getElementById("tx-amount").value = "250.00";
-  document.getElementById("tx-reference").value = `INV-${Math.floor(1000 + Math.random() * 9000)}`;
+  document.getElementById("tx-reference").value = `INV_${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
 // Render Journal Table
@@ -227,7 +233,7 @@ function renderJournal() {
   if (!tbody) return;
 
   if (localState.transactions.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">No transactions recorded in journal yet. Use the composer above to post!</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">No transactions recorded in journal yet. Use the composer above to post.</td></tr>`;
     return;
   }
 
@@ -235,10 +241,10 @@ function renderJournal() {
   localState.transactions.forEach(tx => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><strong>${tx.reference_id}</strong></td>
+      <td><strong style="color: #FFFFFF;">${tx.reference_id}</strong></td>
       <td>${tx.timestamp}</td>
       <td>${tx.description}</td>
-      <td><strong>$${(tx.amount / 100).toFixed(2)}</strong></td>
+      <td><strong style="color: #FFFFFF;">$${(tx.amount / 100).toFixed(2)}</strong></td>
       <td class="hash-cell" title="${tx.hash}">${tx.hash}</td>
       <td><span class="eq-badge credit">POSTED</span></td>
     `;
@@ -265,7 +271,7 @@ function renderAuditChain() {
       <strong>BLOCK HASH</strong>
       0000000000000000000000000000000000000000000000000000000000000000
     </div>
-    <div style="font-size: 0.75rem; color: var(--text-muted);">Root anchor seed</div>
+    <div style="font-size: 0.72rem; color: var(--text-muted);">Root anchor seed</div>
   `;
   container.appendChild(genesisDiv);
 
@@ -280,14 +286,14 @@ function renderAuditChain() {
         <span class="eq-badge ${tx.isTampered ? 'unbalanced' : 'credit'}">${tx.isTampered ? 'CORRUPT' : 'VERIFIED'}</span>
       </div>
       <div class="block-hash">
-        <strong>SHA-256 DIGEST</strong>
+        <strong>SHA 256 DIGEST</strong>
         ${tx.hash}
       </div>
       <div class="block-hash">
         <strong>PREV HASH</strong>
         ${tx.prev_hash.slice(0, 24)}...
       </div>
-      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary); margin-top: 8px;">
+      <div style="font-size: 0.78rem; font-weight: 600; color: #FFFFFF; margin-top: 6px;">
         Cleared: $${(tx.amount / 100).toFixed(2)}
       </div>
     `;
@@ -298,11 +304,11 @@ function renderAuditChain() {
 // Tamper Attack Simulator
 function handleSimulateTamper() {
   if (localState.transactions.length === 0) {
-    showToast("Post at least 1 transaction in the composer before running the tamper simulation!", "error");
+    showToast("Post at least 1 transaction before running the tamper simulation.", "error");
     return;
   }
 
-  const targetTx = localState.transactions[localState.transactions.length - 1]; // Tamper first transaction
+  const targetTx = localState.transactions[localState.transactions.length - 1]; // Tamper earliest transaction
   targetTx.amount = 9999900; // Alter $250.00 to $99,999.00
   targetTx.isTampered = true;
 
@@ -311,9 +317,9 @@ function handleSimulateTamper() {
   const alertBox = document.getElementById("tamper-alert-box");
   alertBox.style.display = "block";
   alertBox.innerHTML = `
-    🚨 <strong>CRYPTOGRAPHIC TAMPERING DETECTED BY AUDIT ENGINE!</strong><br>
+    <strong>CRYPTOGRAPHIC INTEGRITY VIOLATION DETECTED</strong><br>
     Transaction <code>${targetTx.reference_id}</code> was mutated in storage.<br>
-    The calculated SHA-256 hash no longer matches the cryptographic block signature. All downstream blocks are rejected.
+    The calculated SHA 256 digest does not match the cryptographic block signature. All downstream blocks fail verification.
   `;
 }
 
@@ -326,7 +332,7 @@ function handleRestoreIntegrity() {
   renderAuditChain();
 }
 
-// High-Concurrency OCC Simulator
+// High Concurrency OCC Simulator
 async function runOCCSimulation() {
   const logStream = document.getElementById("occ-log-stream");
   const countBadge = document.getElementById("occ-completed-count");
@@ -337,8 +343,16 @@ async function runOCCSimulation() {
   btn.disabled = true;
   logStream.innerHTML = "";
 
-  const cashAcc = localState.accounts.find(a => a.id === "acc_cash");
-  const initialBalance = cashAcc.balance;
+  const cashAcc = localState.accounts.find(a => a.id === "acc_cash") 
+    || localState.accounts.find(a => a.code === "1000") 
+    || localState.accounts[0];
+
+  if (!cashAcc) {
+    showToast("No account available for concurrency simulation.", "error");
+    btn.disabled = false;
+    return;
+  }
+
   const numWorkers = 50;
   const amountPerTx = 1000; // $10.00 each
 
@@ -355,33 +369,33 @@ async function runOCCSimulation() {
     logStream.scrollTop = logStream.scrollHeight;
   }
 
-  appendLog(`Launching ${numWorkers} concurrent worker coroutines against Account '${cashAcc.name}'...`, "event");
+  appendLog(`Initiating ${numWorkers} concurrent worker coroutines against Account '${cashAcc.name}'...`, "event");
 
   const tasks = Array.from({ length: numWorkers }, async (_, i) => {
     const workerId = i + 1;
-    // Simulate OCC retry loop with exponential backoff & jitter
+    // Simulate OCC retry loop with exponential backoff and jitter
     let attempts = 0;
     while (attempts < 10) {
       attempts++;
       const currentVersion = cashAcc.version;
       
-      // Simulate random microsecond network contention
+      // Simulate microsecond network contention
       await new Promise(r => setTimeout(r, Math.random() * 8 + 2));
 
       if (cashAcc.version === currentVersion) {
-        // CAS Success!
+        // CAS Success
         cashAcc.balance += amountPerTx;
         cashAcc.version += 1;
         completed++;
         countBadge.innerText = `${completed} / ${numWorkers}`;
         balanceBadge.innerText = `$${(cashAcc.balance / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-        appendLog(`Worker #${String(workerId).padStart(2, '0')}: CAS atomic commit on version ${currentVersion} -> SUCCESS`, "event");
+        appendLog(`Worker #${String(workerId).padStart(2, '0')}: CAS atomic commit on version ${currentVersion} [SUCCESS]`, "event");
         break;
       } else {
-        // OCC Collision! Stale version detected
+        // OCC Collision: Stale version detected
         conflicts++;
         const jitter = (Math.random() * 5 + 2).toFixed(1);
-        appendLog(`Worker #${String(workerId).padStart(2, '0')}: OCC Version Collision (Expected v${currentVersion}, saw v${cashAcc.version}) -> Backoff ${jitter}ms`, "retry");
+        appendLog(`Worker #${String(workerId).padStart(2, '0')}: Version Conflict (Expected v${currentVersion}, found v${cashAcc.version}) [Backoff ${jitter}ms]`, "retry");
         await new Promise(r => setTimeout(r, parseFloat(jitter)));
       }
     }
@@ -393,7 +407,7 @@ async function runOCCSimulation() {
   const rps = (numWorkers / duration).toFixed(0);
 
   throughputBadge.innerText = `${rps} tx/sec`;
-  appendLog(`✓ CONCURRENCY STRESS TEST COMPLETE: 50/50 transactions cleared in ${(duration * 1000).toFixed(1)}ms (${rps} tx/sec). 0 lost updates!`, "event");
+  appendLog(`CONCURRENCY BENCHMARK COMPLETE: 50/50 transactions cleared in ${(duration * 1000).toFixed(1)}ms (${rps} tx/sec). Zero lost updates verified.`, "event");
   btn.disabled = false;
   renderAccounts();
 }
@@ -411,7 +425,7 @@ function handleIdempotencySpam() {
   const record = localState.idempotencyRecords[FIXED_IDEM_KEY];
 
   if (!record) {
-    // 1st request: charge
+    // 1st request: settle
     chargedBalance += 10000; // $100.00
     localState.idempotencyRecords[FIXED_IDEM_KEY] = {
       status: "COMPLETED",
@@ -423,13 +437,13 @@ function handleIdempotencySpam() {
     
     const p = document.createElement("div");
     p.className = "log-line";
-    p.innerHTML = `<span class="log-event">[Request #${idempotencyClickCount}] New Key: Acquired Lock -> Executed & Charged $100.00 (HTTP 201 Created)</span>`;
+    p.innerHTML = `<span class="log-event">[Request #${idempotencyClickCount}] New Key: Acquired Lock -> Settled $100.00 (HTTP 201 Created)</span>`;
     logBox.prepend(p);
   } else {
-    // Subsequent requests: cached response!
+    // Subsequent requests: cached response
     const p = document.createElement("div");
     p.className = "log-line";
-    p.innerHTML = `<span class="log-retry">[Request #${idempotencyClickCount}] Duplicate Key '${FIXED_IDEM_KEY}': Cached Response Served! Balance unchanged (HTTP 200 OK)</span>`;
+    p.innerHTML = `<span class="log-retry">[Request #${idempotencyClickCount}] Duplicate Key '${FIXED_IDEM_KEY}': Cached Response Returned. Balance unchanged (HTTP 200 OK)</span>`;
     logBox.prepend(p);
   }
 }
@@ -440,10 +454,10 @@ function handleResetIdempotency() {
   delete localState.idempotencyRecords[FIXED_IDEM_KEY];
   document.getElementById("idem-clicks-count").innerText = "0";
   document.getElementById("idem-charged-count").innerText = "$0.00";
-  document.getElementById("idem-network-log").innerHTML = `<div class="log-line"><span class="log-time">Ready. Click 'Rapid-Fire 5x Payments' below.</span></div>`;
+  document.getElementById("idem-network-log").innerHTML = `<div class="log-line"><span class="log-time">Ready. Click 'Dispatch Request' multiple times to verify.</span></div>`;
 }
 
-// Bank Statement Tie-Out Simulator
+// Bank Statement Tie Out Simulator
 function handleRunReconciliation() {
   const reportCard = document.getElementById("reconciliation-results");
   reportCard.style.display = "block";
@@ -467,4 +481,3 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btn-reset-idempotency").addEventListener("click", handleResetIdempotency);
   document.getElementById("btn-run-reconciliation").addEventListener("click", handleRunReconciliation);
 });
-

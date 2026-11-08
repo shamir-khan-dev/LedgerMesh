@@ -155,5 +155,5 @@ def test_frontend_dashboard_served(client):
     res = client.get("/")
     assert res.status_code == 200
     assert "LedgerMesh" in res.text
-    assert "Double-Entry" in res.text
+    assert "Double Entry" in res.text
 
