@@ -109,7 +109,7 @@ def create_app(
         lifespan=lifespan,
     )
 
-    # Middleware: Distributed Trace ID & Request Latency Instrumentation
+    # Middleware: Security Hardening, Distributed Trace ID & Request Latency Instrumentation
     @app.middleware("http")
     async def trace_and_telemetry_middleware(request: Request, call_next):
         trace_id = request.headers.get("X-Trace-Id") or generate_trace_id()
@@ -121,6 +121,20 @@ def create_app(
         duration = time.perf_counter() - start_time
         response.headers["X-Trace-Id"] = trace_id
         response.headers["X-Response-Time-Sec"] = f"{duration:.6f}"
+
+        # Security and Hardening Headers
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "connect-src 'self'; "
+            "img-src 'self' data:"
+        )
 
         metrics_reg.record_latency("http_request_duration", duration)
         metrics_reg.increment(f"http_status_{response.status_code}")
