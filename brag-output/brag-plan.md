@@ -80,3 +80,4 @@ Visual: Clean LedgerMesh SVG monogram with subtitle:
 "LedgerMesh: Institutional Financial Clearing Core"
 "github.com/shamir-khan-dev/LedgerMesh"
 Audio intent: Clean music fade out on final frame.
+
