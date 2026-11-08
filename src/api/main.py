@@ -5,6 +5,7 @@ from typing import List, Optional
 from fastapi import FastAPI, Header, HTTPException, Query, Request, Response, status
 from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel, Field
 
 from src.core.models import (
@@ -108,6 +109,8 @@ def create_app(
         description="High-Concurrency Double-Entry Financial Clearing & Audit Engine",
         lifespan=lifespan,
     )
+
+    app.add_middleware(GZipMiddleware, minimum_size=500)
 
     # Middleware: Security Hardening, Distributed Trace ID & Request Latency Instrumentation
     @app.middleware("http")
